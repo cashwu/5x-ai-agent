@@ -15,3 +15,5 @@ wheels/
 .idea/
 .ropeproject/
 *.pyc
+
+history/
