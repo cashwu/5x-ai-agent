@@ -11,7 +11,18 @@ tools = [
         "type": "function",
         "function": {
             "name": "get_weather",
-            "description": "查詢即時天氣資訊",
+            "description": "取得指定城市的即時天氣資訊，包括溫度、濕度、天氣狀況等。",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "city": {
+                        "type": "string",
+                        "description": "城市名稱（英文），如 Taipei 或 Tokyo",
+                    }
+                },
+                "additionalProperties": False,
+                "required": ["city"],
+            },
         },
     }
 ]
