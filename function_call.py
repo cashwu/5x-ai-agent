@@ -1,7 +1,9 @@
 # 檔案：function_call.py
 
+import json
 from message_db import init_message, add_message, get_messages
 from lib.openai import client
+from tools.weather import get_weather
 
 init_message("你是一位聰明的助理，回答問題的時候請一律使用**台灣繁體中文**")
 add_message("今天台北的天氣如何")  # 為求方便，先固定問題
@@ -27,6 +29,8 @@ tools = [
     }
 ]
 
+AVAILABLE_TOOLS = {"get_weather": get_weather}
+
 completion = client.chat.completions.create(
     model="gpt-4.1-nano",  # 選擇模型
     messages=get_messages(),
@@ -34,4 +38,25 @@ completion = client.chat.completions.create(
     tool_choice="auto",
 )
 
-print(completion.choices[0].message)
+
+completion_message = completion.choices[0].message
+tool_calls = completion_message.tool_calls
+
+if tool_calls:
+    for tool_call in tool_calls:
+        function_name = tool_call.function.name
+        arguments = tool_call.function.arguments
+
+        fn = AVAILABLE_TOOLS.get(function_name)
+        if fn is None:
+            continue
+
+        try:
+            args = json.loads(arguments)
+        except json.JSONDecodeError:
+            args = {}
+
+        result = fn(**args)
+        print(result)
+else:
+    print(completion_message.content)
